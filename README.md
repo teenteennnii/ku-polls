@@ -1,5 +1,5 @@
 # ku-polls
-An application for polls at kasertsart university.
+An application for conducting a poll or survey, for students in Kasetsart University.
 
 
 # Project Documents
