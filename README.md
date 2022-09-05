@@ -1,4 +1,4 @@
-# ku-polls
+# KU-polls
 An application for conducting a poll or survey, for students in Kasetsart University.
 
 
