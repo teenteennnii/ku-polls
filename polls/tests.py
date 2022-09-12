@@ -6,6 +6,14 @@ from django.utils import timezone
 
 from .models import Question
 
+def create_question(question_text, days):
+    """
+    Create a question with the given `question_text` and published the
+    given number of `days` offset to now (negative for questions published
+    in the past, positive for questions that have yet to be published).
+    """
+    time = timezone.now() + datetime.timedelta(days=days)
+    return Question.objects.create(question_text=question_text, pub_date=time)
 
 class QuestionModelTests(TestCase):
 
@@ -36,14 +44,53 @@ class QuestionModelTests(TestCase):
         recent_question = Question(pub_date=time)
         self.assertIs(recent_question.was_published_recently(), True)
         
-def create_question(question_text, days):
-    """
-    Create a question with the given `question_text` and published the
-    given number of `days` offset to now (negative for questions published
-    in the past, positive for questions that have yet to be published).
-    """
-    time = timezone.now() + datetime.timedelta(days=days)
-    return Question.objects.create(question_text=question_text, pub_date=time)
+    def test_is_published_with_old_question(self):
+        """
+        is_published() returns True for questions whose pub_date
+        is older than 1 day.
+        """
+        old_question = create_question('Test', days=-1)
+        self.assertIs(old_question.is_published(), True)
+        
+    def test_is_published_with_future_question(self):
+        """
+        is_published() returns False for questions whose pub_date
+        is in the future.
+        """
+        future_question = create_question('Test', days=30)
+        self.assertIs(future_question.is_published(), False)
+        
+    def test_can_vote_with_old_question(self):
+        """
+        can_vote() returns True for question whose pub_date
+        is older than 1 day.
+        """
+        old_question = create_question('', days=-1)
+        self.assertIs(old_question.can_vote(), True)
+        
+    def test_can_vote_with_future_question(self):
+        """
+        can_vote() returns False for questions whose pub_date
+        is in the future.
+        """
+        future_question = create_question('', days=30)
+        self.assertIs(future_question.can_vote(), False)
+        
+    def test_can_vote_with_recent_question(self):
+        """
+        can_vote() returns True for questions whose pub_date
+        is within the last day.
+        """
+        recent_question = create_question('', days=0)
+        self.assertIs(recent_question.can_vote(), True)
+        
+    def test_can_vote_with_expired_queston(self):
+        """
+        can_vote() returns False for expired question.
+        """
+        expired_question = create_question('', days=-1)
+        expired_question.end_date = timezone.localtime() - datetime.timedelta(days=1)
+        self.assertIs(expired_question.can_vote(), False)
 
 
 class QuestionIndexViewTests(TestCase):
