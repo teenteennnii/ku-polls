@@ -13,6 +13,18 @@ label {
     color: whitesmoke;
 }
 
+small {
+    color: whitesmoke;
+}
+
+list {
+    color: whitesmoke;
+}
+
+list a{
+    color: whitesmoke;
+}
+
 body {
     background: white url("images/background.jpeg") no-repeat;
 }
