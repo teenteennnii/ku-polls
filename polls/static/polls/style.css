@@ -1,4 +1,31 @@
+li {
+    color: whitesmoke;
+}
 li a {
+    color: whitesmoke;
+}
+
+h1 {
+    color: whitesmoke;
+}
+
+label {
+    color: whitesmoke;
+}
+
+small {
+    color: whitesmoke;
+}
+
+p {
+    color: orangered;
+}
+
+list {
+    color: whitesmoke;
+}
+
+list a{
     color: whitesmoke;
 }
 

@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-import polls.views
+from django.http import HttpResponseRedirect
 
 urlpatterns = [
-    path('', polls.views.IndexView.as_view()),
+    # request to polls/
+    path('', lambda request: HttpResponseRedirect('polls/')),
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
 ]
