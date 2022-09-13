@@ -2,13 +2,15 @@
 
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
-<h1>{{ question.question_text }}</h1>
 
-<ul>
-{% for choice in question.choice_set.all %}
-    <list>{{forloop.counter0|add:"1"}}<small>.</small>&ensp;{{choice.choice_text }} ---- {{ choice.votes }} </list><br>
-{% endfor %}
-</ul>
+<fieldset>
+    <legend><h1>{{ question.question_text }}</h1></legend>
+    {% for choice in question.choice_set.all %}
+        <list>{{forloop.counter0|add:"1"}}<small>.</small>&ensp;{{choice.choice_text }} ---- {{ choice.votes }} </list><br>
+    {% endfor %}
+
+</fieldset>
+
 
 &emsp;
 <a href="{% url 'polls:index' %}"> <button type="button">{{"Home"}}</button> 

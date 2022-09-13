@@ -2,8 +2,8 @@
 
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
-<h1 style="color:white";>KU polls</h1>
-
+<fieldset>
+    <legend><h1>KU polls</h1></legend>
 {% if latest_question_list %}
     <ul>
     {% for question in latest_question_list %}
@@ -15,3 +15,5 @@
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
+
+</fieldset>
