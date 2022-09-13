@@ -6,7 +6,7 @@
 
 <ul>
 {% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }} ---- {{ choice.votes }} </li>
+    <list>{{forloop.counter0|add:"1"}}<small>.</small>&ensp;{{choice.choice_text }} ---- {{ choice.votes }} </list><br>
 {% endfor %}
 </ul>
 

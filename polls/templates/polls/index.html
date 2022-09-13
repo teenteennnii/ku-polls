@@ -7,8 +7,9 @@
 {% if latest_question_list %}
     <ul>
     {% for question in latest_question_list %}
-    <li><a href="{% url 'polls:detail' question.id %}" style="font-size: 18px;">{{ question.question_text }}</a> &ensp;
-    <a href="{% url 'polls:results' question.id %}"> <button type="button">{{"results"}}</button> </li>
+    <list>{{forloop.counter0|add:"1"}}<small>.</small> &ensp;
+    <a href="{% url 'polls:detail' question.id %}" style="font-size: 18px;">{{ question.question_text }}</a> &ensp;
+    <a href="{% url 'polls:results' question.id %}"><button type="button">{{"results"}}</button><br></a>
     {% endfor %}
     </ul>
 {% else %}
