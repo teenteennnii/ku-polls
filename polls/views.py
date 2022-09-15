@@ -79,7 +79,7 @@ def vote(request, question_id):
             # with POST data. This prevents data from being posted twice if a
             # user hits the Back button.
             return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
-        
+
 def signup(request):
     """Register a new user."""
     if request.method == 'POST':
