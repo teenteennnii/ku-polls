@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
 
-<fieldset>
+<fieldset style="text-align:center">
     <legend><h1>{{ question.question_text }}</h1></legend>
     {% for choice in question.choice_set.all %}
         <list>{{forloop.counter0|add:"1"}}<small>.</small>&ensp;{{choice.choice_text }} ---- {{ choice.votes }} </list><br>
@@ -11,6 +11,4 @@
 
 </fieldset>
 
-
-&emsp;
-<a href="{% url 'polls:index' %}"> <button type="button">{{"Home"}}</button> 
+<center><a href="{% url 'polls:index' %}"> <button type="button">{{"Home"}}</button></center>
