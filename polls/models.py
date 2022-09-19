@@ -10,6 +10,7 @@ class Question(models.Model):
     end_date = models.DateTimeField('date ended', null=True)
     
     def __str__(self):
+        """Show string of question"""
         return self.question_text
     
     @admin.display(
@@ -39,4 +40,5 @@ class Choice(models.Model):
     votes = models.IntegerField(default=0)
     
     def __str__(self):
+        """Show string of choice"""
         return self.choice_text
