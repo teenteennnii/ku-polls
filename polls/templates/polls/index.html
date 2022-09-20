@@ -2,7 +2,12 @@
 
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
-<h3 style="text-align:right;">Hello,&ensp; {{ request.user }} &emsp;</h3>
+<a style="text-align:right; color: whitesmoke;">&ensp; Hello,&ensp; {{ request.user }} &ensp;</a>
+{% if user.is_authenticated %}
+    <a href="{% url 'logout' %}"><button style="text-align:right;" type="button">Logout</button></a>
+{% else %}
+    <a href="{% url 'login' %}"><button style="text-align:right;" type="button">Login</button></a>
+{% endif %}
 
 <fieldset>
     <legend><h1>KU polls</h1></legend>
