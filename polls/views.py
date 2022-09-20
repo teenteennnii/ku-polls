@@ -4,7 +4,8 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from django.shortcuts import redirect 
-from .models import Choice, Question
+from .models import Choice, Question, Vote
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate
@@ -63,21 +64,28 @@ def vote(request, question_id):
        return redirect('login')
    
     else:
+        user = request.user
         question = get_object_or_404(Question, pk=question_id)
         try:
             selected_choice = question.choice_set.get(pk=request.POST['choice'])
+            
         except (KeyError, Choice.DoesNotExist):
             # Redisplay the question voting form.
             return render(request, 'polls/detail.html', {
                 'question': question,
                 'error_message': "You didn't select a choice.",
-            })
+                })
         else:
-            selected_choice.votes += 1
-            selected_choice.save()
-            # Always return an HttpResponseRedirect after successfully dealing
-            # with POST data. This prevents data from being posted twice if a
-            # user hits the Back button.
+            if question.can_vote():
+                try:
+                    user_vote = question.vote_set.get(user=user)
+                    user_vote.choice = selected_choice
+                    user_vote.save()
+                except Vote.DoesNotExist:
+                    Vote.objects.create(user=user, choice=selected_choice, question=selected_choice.question).save()
+            else:
+                messages.error(request, "You can't vote this question.")
+                return HttpResponseRedirect(reverse('polls:index'))
             return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 def signup(request):
@@ -85,12 +93,13 @@ def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_passwd = form.cleaned_data.get('password')
-            user = authenticate(username=username,password=raw_passwd)
+            # form.save()
+            # username = form.cleaned_data.get('username')
+            # raw_passwd = form.cleaned_data.get('password')
+            # user = authenticate(username=username, password=raw_passwd)
+            user = form.save()
             login(request, user)
-            return redirect('polls')
+            return redirect('/polls')
         # what if form is not valid?
         # we should display a message in signup.html
     else:
