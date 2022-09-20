@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -31,6 +31,30 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
     model = Question
     template_name = 'polls/detail.html'
     
+    def get(self, request, *args, **kwargs):
+        """Check if the question can be voted."""
+        user = request.user
+        try:
+            question = get_object_or_404(Question, pk=kwargs['pk'])
+        except Http404:
+            messages.error(request, "This question is not available for voting.")
+            return HttpResponseRedirect(reverse('polls:index'))
+        
+        try:
+            if not user.is_authenticated:
+                raise Vote.DoesNotExist
+            user_vote = question.vote_set.get(user=user).choice
+        except Vote.DoesNotExist:
+            # if user didnt select a choice or invalid cho[ice
+            # it will render as didnt select a choice
+            return super().get(request, *args, **kwargs)
+        else:
+            # go to polls detail application
+            return render(request, 'polls/detail.html', {
+                'question': question,
+                'user_vote': user_vote,
+            })
+    
     def get_queryset(self):
         """
         Excludes any questions that aren't published yet.
@@ -60,33 +84,28 @@ class ResultsView(generic.DetailView):
 def vote(request, question_id):
     """Vote for a choice on a question (poll)."""
     user = request.user
-    if not user.is_authenticated:
-       return redirect('login')
-   
-    else:
-        user = request.user
-        question = get_object_or_404(Question, pk=question_id)
-        try:
-            selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
             
-        except (KeyError, Choice.DoesNotExist):
+    except (KeyError, Choice.DoesNotExist):
             # Redisplay the question voting form.
-            return render(request, 'polls/detail.html', {
-                'question': question,
-                'error_message': "You didn't select a choice.",
-                })
+        return render(request, 'polls/detail.html', {
+            'question': question,
+            'error_message': "You didn't select a choice.",
+            })
+    else:
+        if question.can_vote():
+            try:
+                user_vote = question.vote_set.get(user=user)
+                user_vote.choice = selected_choice
+                user_vote.save()
+            except Vote.DoesNotExist:
+                Vote.objects.create(user=user, choice=selected_choice, question=selected_choice.question).save()
         else:
-            if question.can_vote():
-                try:
-                    user_vote = question.vote_set.get(user=user)
-                    user_vote.choice = selected_choice
-                    user_vote.save()
-                except Vote.DoesNotExist:
-                    Vote.objects.create(user=user, choice=selected_choice, question=selected_choice.question).save()
-            else:
-                messages.error(request, "You can't vote this question.")
-                return HttpResponseRedirect(reverse('polls:index'))
-            return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+            messages.error(request, "You can't vote this question.")
+            return HttpResponseRedirect(reverse('polls:index'))
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 def signup(request):
     """Register a new user."""
