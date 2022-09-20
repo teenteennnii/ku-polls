@@ -2,6 +2,8 @@
 
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
+{% block body%}
+{{super}}
 <h3 style="text-align:right;">Hello,&ensp; {{ request.user }} &emsp;</h3>
 
 <form action="{% url 'polls:vote' question.id %}" method="post">
@@ -10,10 +12,15 @@
         <legend><h1>{{ question.question_text }}</h1></legend>
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         {% for choice in question.choice_set.all %}
-            <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+            {% if choice == user_vote %}
+                <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" checked>
+            {% else %}
+                <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+            {% endif %}
             <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
         {% endfor %}
     </fieldset>
     <a href="{% url 'polls:index' %}"> <button type="button">{{"Home"}}</button></a>
     <input type="submit" value="Vote">
     </form>
+{% endblock body%}
