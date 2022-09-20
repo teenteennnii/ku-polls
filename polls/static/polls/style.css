@@ -1,43 +1,21 @@
-li {
-    color: whitesmoke;
-}
-li a {
+li, li a {
     color: whitesmoke;
 }
 
-h1 {
+h1, h2, h3 {
     color: whitesmoke;
 }
 
-h2 {
+label, table, small {
     color: whitesmoke;
 }
 
-label {
-    color: whitesmoke;
-}
-
-table {
-    color: whitesmoke;
-}
-
-small {
-    color: whitesmoke;
-}
-
-a {
+a, p {
     color: salmon;
 }
 
-p {
-    color: salmon;
-}
 
-list {
-    color: whitesmoke;
-}
-
-list a{
+list, list a{
     color: whitesmoke;
 }
 

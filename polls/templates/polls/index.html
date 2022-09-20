@@ -2,6 +2,8 @@
 
 <link rel="stylesheet" href="{% static 'polls/style.css' %}">
 
+<h3 style="text-align:right;">Hello,&ensp; {{ request.user }} &emsp;</h3>
+
 <fieldset>
     <legend><h1>KU polls</h1></legend>
 {% if latest_question_list %}
