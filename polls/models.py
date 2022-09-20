@@ -1,4 +1,5 @@
 import datetime
+from re import T
 
 from django.db import models
 from django.utils import timezone
@@ -43,9 +44,9 @@ class Choice(models.Model):
     # votes = models.IntegerField(default=0)
     
     @property
-    def vote(self):
+    def votes(self):
         """Count the number of vote for this choice."""
-        return 0
+        return Vote.objects.filter(choice=self).count()
     
     def __str__(self):
         """Show string of question"""
@@ -55,13 +56,5 @@ class Choice(models.Model):
 class Vote(models.Model):
     """A vote by a user for a question."""
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-    def vote(request, pk): 
-        choice = get_object_or_404(Choice, pk=pk) 
-        if Vote.objects.filter(choice=choice,user=request.user).exists(): 
-            messages.error(request,"Already Voted") 
-            return redirect()
-        else: 
-            Vote.objects.create(user=request.user, choice=choice) 
-        return redirect()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True)
