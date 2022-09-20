@@ -3,8 +3,9 @@ import datetime
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
+from django.contrib.auth.models import User
 
-from .models import Question
+from .models import Question, Vote
 
 def create_question(question_text, days):
     """
@@ -151,6 +152,13 @@ class QuestionIndexViewTests(TestCase):
         )
 
 class QuestionDetailViewTests(TestCase):
+    def setUp(self):
+        """ Initialize attribute before test"""
+        self.user = User.objects.create_user(username='Test_001')
+        self.user.set_password('test_test')
+        self.user.save()
+        self.client.login(username='Test_001', password='test_test')
+        
     def test_future_question(self):
         """
         The detail view of a question with a pub_date in the future
@@ -170,3 +178,57 @@ class QuestionDetailViewTests(TestCase):
         url = reverse('polls:detail', args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+        
+
+class VotingTest(TestCase):
+    def setUp(self):
+        """ Initialize attribute before test"""
+        self.user = User.objects.create_user(username='Test_001')
+        self.user.set_password('test_test')
+        self.user.save()
+        self.client.login(username='Test_001', password='test_test')
+        
+    def test_can_vote_with_future_question(self):
+        """
+        can_vote() returns False for questions whose pub_date
+        is in the future.
+        """
+        future_question = create_question('', days=30)
+        self.assertIs(future_question.can_vote(), False)
+
+    def test_can_vote_with_old_question(self):
+        """
+        can_vote() returns True for old question which not have end_date
+        """
+        past_question = create_question('', days=-1)
+        self.assertIs(past_question.can_vote(), True)
+        
+    def test_can_vote_with_recent_question(self):
+        """
+        can_vote() returns True for questions whose pub_date
+        is within the last day.
+        """
+        recent_question = create_question('', days=0)
+        self.assertIs(recent_question.can_vote(), True)
+        
+    def test_can_vote_expired_queston(self):
+        """
+        can_vote() returns False for expired question
+        """
+        expired_question = create_question('', days=-1)
+        expired_question.end_date = timezone.localtime() - datetime.timedelta(days=1)
+        self.assertIs(expired_question.can_vote(), False)
+        
+    def test_one_vote_each_question_and_user(self):
+        """one user is one vote for each question"""
+        question = create_question('test', days=-1)
+        choice1 = question.choice_set.create(choice_text="one")
+        choice2 = question.choice_set.create(choice_text="two")
+        
+        self.client.post(reverse('polls:vote', args=(question.id,)), {'choice': choice1.id})
+        self.assertEqual(question.vote_set.get(user=self.user).choice, choice1)
+        self.assertEqual(Vote.objects.all().count(), 1)
+        
+        self.client.post(reverse('polls:vote', args=(question.id,)), {'choice': choice2.id})
+        self.assertEqual(question.vote_set.get(user=self.user).choice, choice2)
+        self.assertEqual(Vote.objects.all().count(), 1)

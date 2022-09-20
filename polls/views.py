@@ -1,10 +1,15 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-
-from .models import Choice, Question
+from django.shortcuts import redirect 
+from .models import Choice, Question, Vote
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
 
 
 class IndexView(generic.ListView):
@@ -21,9 +26,34 @@ class IndexView(generic.ListView):
         ).order_by('-pub_date')[:5]
 
 
-class DetailView(generic.DetailView):
+class DetailView(LoginRequiredMixin, generic.DetailView):
+    """Class based view for viewing a poll."""
     model = Question
     template_name = 'polls/detail.html'
+    
+    def get(self, request, *args, **kwargs):
+        """Check if the question can be voted."""
+        user = request.user
+        try:
+            question = get_object_or_404(Question, pk=kwargs['pk'])
+        except Http404:
+            messages.error(request, "This question is not available for voting.")
+            return HttpResponseRedirect(reverse('polls:index'))
+        
+        try:
+            if not user.is_authenticated:
+                raise Vote.DoesNotExist
+            user_vote = question.vote_set.get(user=user).choice
+        except Vote.DoesNotExist:
+            # if user didnt select a choice or invalid cho[ice
+            # it will render as didnt select a choice
+            return super().get(request, *args, **kwargs)
+        else:
+            # go to polls detail application
+            return render(request, 'polls/detail.html', {
+                'question': question,
+                'user_vote': user_vote,
+            })
     
     def get_queryset(self):
         """
@@ -50,20 +80,47 @@ class ResultsView(generic.DetailView):
 #     question = get_object_or_404(Question, pk=question_id)
 #     return render(request, 'polls/results.html', {'question': question})
 
+@login_required
 def vote(request, question_id):
+    """Vote for a choice on a question (poll)."""
+    user = request.user
     question = get_object_or_404(Question, pk=question_id)
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
+            
     except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
+            # Redisplay the question voting form.
         return render(request, 'polls/detail.html', {
             'question': question,
             'error_message': "You didn't select a choice.",
-        })
+            })
     else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
+        if question.can_vote():
+            try:
+                user_vote = question.vote_set.get(user=user)
+                user_vote.choice = selected_choice
+                user_vote.save()
+            except Vote.DoesNotExist:
+                Vote.objects.create(user=user, choice=selected_choice, question=selected_choice.question).save()
+        else:
+            messages.error(request, "You can't vote this question.")
+            return HttpResponseRedirect(reverse('polls:index'))
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+def signup(request):
+    """Register a new user."""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            # form.save()
+            # username = form.cleaned_data.get('username')
+            # raw_passwd = form.cleaned_data.get('password')
+            # user = authenticate(username=username, password=raw_passwd)
+            user = form.save()
+            login(request, user)
+            return redirect('/polls')
+        # what if form is not valid?
+        # we should display a message in signup.html
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form':form})

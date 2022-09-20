@@ -1,0 +1,21 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+<fieldset style="text-align:center">
+    <legend><h2>Login</h2></legend>
+    <center>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p>
+        <button type="submit">Login</button>
+        </p>
+    <input type="hidden" name="next" value="{{next}}"/>
+    </form>
+{# If you have a password_reset template, then add here #}
+    <p>
+    <a href="{% url 'password_reset' %}">Forgot password?</a>
+    </p>
+    </center>
+</fieldset>

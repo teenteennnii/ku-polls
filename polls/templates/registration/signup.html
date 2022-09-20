@@ -1,0 +1,25 @@
+{% comment %} {% extends 'base.html' %} {% endcomment %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+
+<fieldset style="text-align:center">
+{% block content %}
+    <legend><h2>Register</h2></legend>
+    <center>
+    <form method="POST">
+        {% csrf_token %}
+        <table>
+        {{ form.as_table }}
+        <tr>
+        <td colspan="2">
+        <center><button type="submit">Register</button></center>
+        </td>
+        </tr>
+        </table>
+    </center>
+    </form>
+{% endblock %}
+</fieldset>

@@ -16,10 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponseRedirect
+from polls import views
 
 urlpatterns = [
     # request to polls/
     path('', lambda request: HttpResponseRedirect('polls/')),
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('signup/', views.signup, name='signup')
 ]
