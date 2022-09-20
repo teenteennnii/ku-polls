@@ -3,7 +3,20 @@ An application for conducting a poll or survey, for students in Kasetsart Univer
 
 
 # How to Install and Run
-To be add.
+ Steps for starting application:
+1. Clone this project and change directory to be ku-polls.
+    ```
+    $ git clone https://github.com/teenteennnii/ku-polls.git
+    $ cd ku-polls/
+    ```
+2. Install modules in requirements.txt using
+    ```
+    $ pip install -r requirements.txt
+    ```
+3. Run this command to run the server
+    ```
+    $ python manage.py runserver
+    ```
 # Project Documents
 All project documents are in the [Project Wiki](../../wiki/Home)
 - [Vision Statement](../../wiki/Vision%20Statement)
