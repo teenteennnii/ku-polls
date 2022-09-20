@@ -49,7 +49,7 @@ class Choice(models.Model):
         return Vote.objects.filter(choice=self).count()
     
     def __str__(self):
-        """Show string of question"""
+        """Show string of choice"""
         return self.choice_text
     
     
