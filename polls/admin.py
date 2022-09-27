@@ -17,4 +17,5 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('question_text', 'pub_date', 'was_published_recently', 'can_vote')
     list_filter = ['pub_date', 'end_date']
 
+
 admin.site.register(Question, QuestionAdmin)
