@@ -1,4 +1,7 @@
 # KU-polls
+![unittest](https://github.com/teenteennnii/ku-polls/actions/workflows/ku-polls.yml/badge.svg)
+[![codecov](https://codecov.io/gh/teenteennnii/ku-polls/branch/main/graph/badge.svg?token=3Y30RPW8M6)](https://codecov.io/gh/teenteennnii/ku-polls)
+
 An application for conducting a poll or survey, for students in Kasetsart University.
 
 
