@@ -1,0 +1,15 @@
+[run]
+# measure branch coverage
+branch = True
+# omit uninteresting files
+omit =
+    polls/migrations/*.py
+    */__init__.py
+    mysite/*
+    manage.py
+
+# exclude some methods we don't test from the report and stats
+[report]
+exclude_lines =
+    def __str__    # example
+    def __repr__   # example
